@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as md5 from 'md5';
 import { ToolsService } from '@/common/utils/tools.service';
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class RegisterService {
   constructor(
@@ -22,7 +23,7 @@ export class RegisterService {
     password = md5(password);
     img = img.replace(/\\/g, '/');
     img = 'http://localhost:3000/' + img.replace('public', 'static');
-    const sqlstr = `insert into users (face_img,username,password,remaining) values('${img}','${username}','${password}',0)`;
+    const sqlstr = `insert into users (uid,face_img,username,password,remaining) values('${uuidv4()}','${img}','${username}','${password}',0)`;
     const state = await this.repository.query(sqlstr).then(() => {
       return true;
     });

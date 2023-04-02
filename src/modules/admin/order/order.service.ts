@@ -13,7 +13,7 @@ export class OrdersService {
   async findAll(uid) {
     let newdata;
     //默认查询所有订单
-    const sql = ` AND orders.buyer_id=${uid}`;
+    const sql = ` AND orders.buyer_id='${uid}'`;
     if (typeof uid !== 'undefined') {
       newdata = this.returnNew(sql);
     } else {
@@ -22,7 +22,7 @@ export class OrdersService {
     return newdata;
   }
   async findOne(order_id: number) {
-    const sql = ` AND orders.order_id=${order_id}`;
+    const sql = ` AND orders.order_id='${order_id}'`;
     return await this.returnNew(sql);
   }
   async returnNew(condition?: any) {

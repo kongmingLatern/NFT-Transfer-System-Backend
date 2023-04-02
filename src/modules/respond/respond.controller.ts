@@ -27,7 +27,7 @@ export class RespondController {
   // }
 
   @Get('/selectAll/response')
-  getResponse(@Query('uid') uid: number) {
+  getResponse(@Query('uid') uid) {
     return this.respondService.respondSearch(uid);
   }
 }

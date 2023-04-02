@@ -23,7 +23,7 @@ export class UserService {
     if (typeof obj.password !== 'undefined') obj.password = md5(obj.password);
 
     const str = mergeStr(obj.uid, obj);
-    const sqlstr = `UPDATE users set ${str} WHERE uid=${obj.uid}`;
+    const sqlstr = `UPDATE users set ${str} WHERE uid='${obj.uid}'`;
 
     const result = await this.repository.query(sqlstr);
     if (typeof result !== 'object') ToolsService.fail('请求失败');
@@ -33,7 +33,7 @@ export class UserService {
    * 删除成功
    */
   removeUser(uid) {
-    const sqlstr = `delete from users where uid=${uid}`;
+    const sqlstr = `delete from users where uid='${uid}'`;
     const result = this.repository.query(sqlstr);
     if (typeof result !== 'object') ToolsService.fail('请求失败');
     return '删除成功！！';
