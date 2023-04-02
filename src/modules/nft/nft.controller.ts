@@ -18,11 +18,11 @@ export class NftController {
   constructor(private readonly nftService: NftService) {}
   //进入详情页
   @Get('/select/nft/nft_id')
-  getDetail(@Query('nft_id') nft_id: number) {
+  getDetail(@Query('nft_id') nft_id) {
     return this.nftService.getDetail(nft_id);
   }
   //加入购物车
-  @Post('/add')
+  @Post('/add/shoppingcart')
   addCart(@Body() obj) {
     return this.nftService.addCart(obj);
   }
@@ -39,7 +39,7 @@ export class NftController {
   //点击购物车
   // @UseGuards(AuthGuard('jwt'))
   @Get('/shoppingcart')
-  getcart(@Query('uid') uid: number) {
+  getcart(@Query('uid') uid) {
     return this.nftService.getCart(uid);
   }
   //删除购物车里面的东西

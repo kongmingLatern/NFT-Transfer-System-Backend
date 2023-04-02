@@ -10,10 +10,8 @@ export class PersonalService {
     private readonly repository: Repository<DatabaseEntity>,
   ) {}
   getInformation(uid) {
-    const sqlstr = `select username,signature,avatar from users where uid=${uid}`;
+    const sqlstr = `select username,signature,avatar, from users where uid=${uid}`;
     const data = this.repository.query(sqlstr);
-    const sqlstr1 = `select nft_name,nft_img,nft_type,
-            transfer_type,basic_bid from nfts where owner=${uid}`;
     return data;
   }
 

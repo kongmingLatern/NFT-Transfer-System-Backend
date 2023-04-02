@@ -3,6 +3,7 @@ import { NftService } from './nft.service';
 @Controller()
 export class NftController {
   constructor(private readonly nftService: NftService) {}
+  //根据 uid 查询订单
   @Get('/select/nft')
   getSelectNft(@Query('uid') uid) {
     return this.nftService.getSelectNft(uid);

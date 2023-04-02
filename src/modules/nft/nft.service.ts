@@ -4,8 +4,9 @@ import { Repository } from 'typeorm';
 import { DatabaseEntity } from '@/entities/Database.entity';
 import { ToolsService } from '@/common/utils/tools.service';
 import { nftType } from '@/type/ntf';
-import { mergeStr, imgAddress } from '@/common/config/merge';
+import { imgAddress, MergeArrays } from '@/common/config/merge';
 import { timestampToTime } from '@/common/config/timesTamp';
+import { v4 as uuid4v } from 'uuid';
 @Injectable()
 export class NftService {
   constructor(
@@ -14,13 +15,24 @@ export class NftService {
   ) {}
   async getDetail(nft_id) {
     //查询nft
-    let sqlstr = `select nft_id,uid,nft_name,nft_desc,nft_type,transfer_type,
-    basic_bid,lower_bid,high_bid,owner,finish_date,count
-    from nfts where nft_id=${nft_id}`;
-    const nft_data = await this.repository.query(sqlstr);
+    const sql1 = `select nft_id,uid,nft_name,nft_desc,nft_type,transfer_type,
+    basic_bid,lower_bid,high_bid,finish_date,count
+    from nfts where nft_id='${nft_id}'`;
+    const sql2 = `SELECT username as buyer
+    FROM auction_table,users
+    WHERE  auction_table.uid=users.uid 
+    AND price= (SELECT MAX(price) FROM auction_table WHERE nft_id='${nft_id}')
+    LIMIT 1;`;
+    const result1 = await this.repository.query(sql1);
+    const result2 = await this.repository.query(sql2);
+    const nft_data = MergeArrays(result1, result2);
+
     //生成折线图
-    sqlstr = `select pay_date,count(*) from auction_table where nft_id=${nft_id} GROUP BY pay_date order by pay_date ASC`;
+    let sqlstr = `select pay_date,count(*) 
+    from auction_table where nft_id=${nft_id} 
+    GROUP BY pay_date order by pay_date ASC`;
     const chart_data = await this.repository.query(sqlstr);
+
     //查询返回字段，卖家，nft名称，卖家，交易价格
     sqlstr = `select users.username from orders,users
     WHERE orders.nft_id=${nft_id} and orders.seller_id=users.uid`;
@@ -47,10 +59,11 @@ export class NftService {
     if (result.length > 0) ToolsService.fail('该物品已添加购物车！');
 
     //加入购物中
-    sqlstr = `insert into shopping_cart (uid,nft_id) values(${uid},${nft_id})`;
+    sqlstr = `insert into shopping_cart (cart_id,uid,nft_id) values('${uuid4v()}','${uid}','${nft_id}')`;
+    console.log(sqlstr);
     result = await this.repository.query(sqlstr);
-    if (result.protocol41) return '添加成功！';
-    ToolsService.fail('添加失败！');
+    if (typeof result === 'object') return '添加成功！';
+    else ToolsService.fail('添加失败！');
   }
   /**
    *参加拍卖会
@@ -164,7 +177,7 @@ export class NftService {
   }
 
   async deleteCart({ uid, nft_id }) {
-    const sqlstr = `delete from shopping_cart where nft_id=${nft_id} and uid=${uid}`;
+    const sqlstr = `delete from shopping_cart where nft_id='${nft_id}' and uid='${uid}'`;
     const result = await this.repository.query(sqlstr);
     if (result.protocol41) return '删除成功！！';
     ToolsService.fail('删除失败！！');
